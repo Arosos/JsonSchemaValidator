@@ -2,6 +2,8 @@
 using JsonSchemaValidator.Validator.Parser.TokenValidators;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array;
+using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array.Filterers;
+using JsonSchemaValidator.Validator.Parser.TokenValidators.Type;
 
 namespace JsonSchemaValidator.Validator.Parser
 {
@@ -27,8 +29,53 @@ namespace JsonSchemaValidator.Validator.Parser
                 new CommaValidator(),
                 new SchemaValidator(),
                 new TitleValidator(GetStringTokenValueValidator()),
-                new RequiredValidator(GetStringArrayWithUniqueValuesValidator()),
+                GetRequiredValidator(),
+                GetTypeValidator(),
             };
+        }
+
+        private static TypeValidator GetTypeValidator()
+        {
+            var primitiveTypes = GetPrimitiveTypes();
+            var typeSpecification = new TypeElementSpecification(primitiveTypes);
+            var arrayFilterers = new List<IArrayFilterer>
+            {
+                GetStringArrayFilterer(),
+                GetUniqueArrayFilterer(),
+                new SpecificationArrayFilterer(typeSpecification),
+            };
+            return new TypeValidator(GetArrayValidator(), typeSpecification, arrayFilterers);
+        }
+
+        private static IEnumerable<string> GetPrimitiveTypes()
+        {
+            yield return "null";
+            yield return "boolean";
+            yield return "object";
+            yield return "array";
+            yield return "number";
+            yield return "string";
+            yield return "integer";
+        }
+
+        private static RequiredValidator GetRequiredValidator()
+        {
+            var arrayFilterers = new List<IArrayFilterer>
+            {
+                GetStringArrayFilterer(),
+                GetUniqueArrayFilterer(),
+            };
+            return new RequiredValidator(GetArrayValidator(), arrayFilterers);
+        }
+
+        private static UniqueArrayFilterer GetUniqueArrayFilterer()
+        {
+            return new UniqueArrayFilterer();
+        }
+
+        private static StringArrayFilterer GetStringArrayFilterer()
+        {
+            return new StringArrayFilterer();
         }
 
         private static IStringTokenValueValidator GetStringTokenValueValidator()
@@ -36,9 +83,10 @@ namespace JsonSchemaValidator.Validator.Parser
             return new StringTokenValueValidator();
         }
 
-        private static IStringArrayWithUniqueValuesValidator GetStringArrayWithUniqueValuesValidator()
+        private static IArrayValidator GetArrayValidator()
         {
-            return new StringArrayWithUniqueValuesValidator();
+            var elementExtractor = new ElementExtractor();
+            return new ArrayValidator(elementExtractor);
         }
     }
 }

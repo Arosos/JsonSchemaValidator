@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array;
 using JsonSchemaValidator.Validator.Tokens;
 
 namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Type
@@ -20,7 +19,8 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Type
 
         public bool IsSatisfied(Token token)
         {
-            return _primitiveTypes.Contains(token.Value);
+            var trimValue = token.Value.Trim('"');
+            return _primitiveTypes.Contains(trimValue);
         }
     }
 }

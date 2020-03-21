@@ -1,5 +1,7 @@
-﻿using JsonSchemaValidator.Validator.Parser.TokenValidators.Common;
+﻿using System.Collections.Generic;
+using System.Linq;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array;
+using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array.Filterers;
 using JsonSchemaValidator.Validator.Tokens;
 using JsonSchemaValidator.Validator.Tokens.Keywords;
 using JsonSchemaValidator.Validator.Tokens.TokenSpecifications;
@@ -8,15 +10,15 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Type
 {
     internal class TypeValidator : ITokenValidator
     {
-        private readonly IStringArrayWithUniqueValuesValidator _stringArrayWithUniqueValuesValidator;
+        private readonly IArrayValidator _stringArrayWithUniqueValuesValidator;
         private readonly ITypeElementSpecification _typeElementSpecification;
-        private readonly IStringTokenValueValidator _stringTokenValueValidator;
+        private readonly IReadOnlyCollection<IArrayFilterer> _arrayFilterers;
 
-        public TypeValidator(IStringArrayWithUniqueValuesValidator stringArrayWithUniqueValuesValidator, ITypeElementSpecification typeElementSpecification, IStringTokenValueValidator stringTokenValueValidator)
+        public TypeValidator(IArrayValidator stringArrayWithUniqueValuesValidator, ITypeElementSpecification typeElementSpecification, IEnumerable<IArrayFilterer> arrayFilterers)
         {
             _stringArrayWithUniqueValuesValidator = stringArrayWithUniqueValuesValidator;
             _typeElementSpecification = typeElementSpecification;
-            _stringTokenValueValidator = stringTokenValueValidator;
+            _arrayFilterers = arrayFilterers.ToList();
         }
 
         public TokenName TokenName => new TokenName(new TypeKeyword().Keyword);
@@ -31,18 +33,19 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Type
             }
             if (value.Name == TokenName.StartArray)
             {
-                var result = _stringArrayWithUniqueValuesValidator.Validate(token, tokenCollection, _typeElementSpecification);
+                var result = _stringArrayWithUniqueValuesValidator.Validate(token, tokenCollection, _arrayFilterers);
                 return result;
             }
             else if (value.Name == TokenName.String)
             {
                 if (!_typeElementSpecification.IsSatisfied(value))
                 {
-                    var error = new ParserError($"{token.Name} string values is ")
+                    var error = new ParserError($"{token.Name} had invalid value.", token.Line, token.Column);
                     return ValidationResult.Error(error);
 
                 }
             }
+            return ValidationResult.Success();
         }
     }
 }

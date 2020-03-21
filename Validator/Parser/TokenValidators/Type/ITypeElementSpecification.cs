@@ -1,4 +1,4 @@
-﻿using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array;
+﻿using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array.Filterers;
 
 namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Type
 {

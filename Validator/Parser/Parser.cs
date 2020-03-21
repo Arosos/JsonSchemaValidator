@@ -31,6 +31,7 @@ namespace JsonSchemaValidator.Validator.Parser
                 }
                 catch (Exception e)
                 {
+                    // TODO: remove that try/catch clause after implementing all validators
                     throw e;
                 }
             }
