@@ -1,6 +1,6 @@
 ﻿namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Common
 {
-    internal interface IStringTokenValueValidator : ITokenValidator
+    internal interface IIntegerTokenValueValidator : ITokenValidator
     {
     }
 }

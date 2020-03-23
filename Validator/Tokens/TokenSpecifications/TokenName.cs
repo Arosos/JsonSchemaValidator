@@ -24,7 +24,7 @@ namespace JsonSchemaValidator.Validator.Tokens.TokenSpecifications
         public static TokenName Skip => new TokenName(SkipName);
         public static TokenName EndOfFile => new TokenName(EndOfFileName);
 
-        private static readonly IReadOnlyCollection<TokenName> _skippableTokenNames = new[] { Empty, Colon, Skip }.ToImmutableHashSet();
+        private static readonly IReadOnlyCollection<TokenName> _skippableTokenNames = new[] { Empty, Skip }.ToImmutableHashSet();
         public static bool IsSkippable(TokenName tokenName) => _skippableTokenNames.Contains(tokenName);
 
         public override string ToString()

@@ -14,11 +14,18 @@ namespace JsonSchemaValidator
             var input = GetInput(args);
             var tokenizer = new TokenizerFactory().Create();
             var tokens = tokenizer.GetTokens(input).ToList();
-            tokens.ForEach(token => Console.WriteLine($"{token.Name}, {token.Value}, {token.Line}, {token.Column}"));
             var tokenCollection = new TokenCollection(tokens);
             var parser = new ParserFactory().Create(tokenCollection);
             var parserResult = parser.Parse();
-            parserResult.ParserErrors.ToList().ForEach(error => Console.WriteLine($"({error.LineNumber},{error.ColumnNumber}): {error.Message}"));
+            if (parserResult.ParserErrors.Any())
+            {
+                Console.WriteLine("Errors:");
+                parserResult.ParserErrors.ToList().ForEach(error => Console.WriteLine($"({error.LineNumber},{error.ColumnNumber}): {error.Message}"));
+            }
+            else
+            {
+                Console.WriteLine("Success!");
+            }
         }
 
         private static string GetInput(string[] args)

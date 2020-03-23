@@ -3,7 +3,9 @@ using JsonSchemaValidator.Validator.Parser.TokenValidators;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array.Filterers;
+using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Object;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Type;
+using JsonSchemaValidator.Validator.Tokens.Keywords;
 
 namespace JsonSchemaValidator.Validator.Parser
 {
@@ -11,27 +13,75 @@ namespace JsonSchemaValidator.Validator.Parser
     {
         public IParser Create(ITokenCollection tokenCollection)
         {
-            var tokenHandlerFactory = GetTokenValidatorFactory();
+            var tokenHandlerFactory = GetParserTokenValidatorFactory();
             return new Parser(tokenCollection, tokenHandlerFactory);
         }
 
-        private static ITokenValidatorFactory GetTokenValidatorFactory()
+        private static ITokenValidatorFactory GetParserTokenValidatorFactory()
         {
-            var tokenValidators = GetTokenValidators();
+            var tokenValidators = GetParserTokenValidators();
             return new TokenValidatorFactory(tokenValidators);
         }
 
-        private static IReadOnlyCollection<ITokenValidator> GetTokenValidators()
+        private static ITokenValidatorFactory GetObjectTokenValidatorFactory()
         {
-            return new List<ITokenValidator>
+            var tokenValidators = GetObjectTokenValidators();
+            return new TokenValidatorFactory(tokenValidators);
+        }
+
+        private static List<ITokenValidator> GetParserTokenValidators()
+        {
+            var result = new List<ITokenValidator>
             {
                 new IdValidator(),
-                new CommaValidator(),
                 new SchemaValidator(),
                 new TitleValidator(GetStringTokenValueValidator()),
                 GetRequiredValidator(),
                 GetTypeValidator(),
+                GetPropertiesValidator(),
+                new DefinitionsValidator(GetObjectValidator()),
             };
+            return result;
+        }
+
+        private static List<ITokenValidator> GetObjectTokenValidators()
+        {
+            return new List<ITokenValidator>
+            {
+                GetRequiredValidator(),
+                GetTypeValidator(),
+                new MinimumValidator(GetIntegerTokenValueValidator()),
+                new MaximumValidator(GetIntegerTokenValueValidator()),
+                GetStringTokenValueValidator(),
+                GetIntegerTokenValueValidator(),
+                new DescriptionValidator(GetStringTokenValueValidator()),
+                new MinLengthValidator(GetNonNegativeIntegerTokenValueValidator()),
+                new MaxLengthValidator(GetNonNegativeIntegerTokenValueValidator()),
+                new RefValidator(GetStringTokenValueValidator()),
+                GetEnumValidator(),
+            };
+        }
+
+        private static EnumValidator GetEnumValidator()
+        {
+            var arrayFilterers = new List<IArrayFilterer>
+            {
+                new SingleArrayFilterer(),
+                new UniqueArrayFilterer(),
+            };
+            return new EnumValidator(GetArrayValidator(), arrayFilterers);
+        }
+
+        private static PropertiesValidator GetPropertiesValidator()
+        {
+            var objectValidator = GetObjectValidator();
+            return new PropertiesValidator(objectValidator);
+        }
+
+        private static ObjectValidator GetObjectValidator()
+        {
+            var tokenValidatorFactory = GetObjectTokenValidatorFactory();
+            return new ObjectValidator(tokenValidatorFactory, GetArrayValidator(), new KeywordFactory());
         }
 
         private static TypeValidator GetTypeValidator()
@@ -49,6 +99,7 @@ namespace JsonSchemaValidator.Validator.Parser
 
         private static IEnumerable<string> GetPrimitiveTypes()
         {
+            // TODO: it is supposed to be some provider but for now it suffices
             yield return "null";
             yield return "boolean";
             yield return "object";
@@ -77,6 +128,13 @@ namespace JsonSchemaValidator.Validator.Parser
         {
             return new StringArrayFilterer();
         }
+
+        private static INonNegativeIntegerValueValidator GetNonNegativeIntegerTokenValueValidator()
+        {
+            return new NonNegativeIntegerValueValidator(GetIntegerTokenValueValidator());
+        }
+
+        private static IIntegerTokenValueValidator GetIntegerTokenValueValidator() => new IntegerTokenValueValidator();
 
         private static IStringTokenValueValidator GetStringTokenValueValidator()
         {

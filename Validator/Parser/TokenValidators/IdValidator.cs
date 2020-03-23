@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using JsonSchemaValidator.Validator.Tokens;
 using JsonSchemaValidator.Validator.Tokens.Keywords;
 using JsonSchemaValidator.Validator.Tokens.TokenSpecifications;
@@ -9,15 +10,15 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators
     {
         public TokenName TokenName => new TokenName(new IdKeyword().Keyword);
 
-        public ValidationResult Validate(Token token, ITokenCollection tokenCollection)
+        public IReadOnlyCollection<ValidationResult> Validate(Token token, ITokenCollection tokenCollection)
         {
             var valueToken = tokenCollection.TakeToken();
             if (valueToken is null || valueToken.Name != TokenName.String || !valueToken.Value.Any() || Fragment.Empty.Value == valueToken.Value)
             {
                 var parserError = new ParserError("Id value is supposed to be string and cannot be empty", valueToken.Line, valueToken.Column);
-                return ValidationResult.Error(parserError);
+                return new[] { ValidationResult.Error(parserError) };
             }
-            return ValidationResult.Success();
+            return new[] { ValidationResult.Success() };
         }
     }
 }

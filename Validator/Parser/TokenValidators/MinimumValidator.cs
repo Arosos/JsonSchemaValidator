@@ -6,20 +6,21 @@ using JsonSchemaValidator.Validator.Tokens.TokenSpecifications;
 
 namespace JsonSchemaValidator.Validator.Parser.TokenValidators
 {
-    internal class TitleValidator : ITokenValidator
+    internal class MinimumValidator : ITokenValidator
     {
-        private readonly IStringTokenValueValidator _stringTokenValueValidator;
+        private readonly IIntegerTokenValueValidator _integerTokenValueValidator;
 
-        public TitleValidator(IStringTokenValueValidator stringTokenValueValidator)
+        public MinimumValidator(IIntegerTokenValueValidator integerTokenValueValidator)
         {
-            _stringTokenValueValidator = stringTokenValueValidator;
+            _integerTokenValueValidator = integerTokenValueValidator;
         }
 
-        public TokenName TokenName => new TokenName(new TitleKeyword().Keyword);
+        public TokenName TokenName => new TokenName(new MinimumKeyword().Keyword);
 
         public IReadOnlyCollection<ValidationResult> Validate(Token token, ITokenCollection tokenCollection)
         {
-            return _stringTokenValueValidator.Validate(token, tokenCollection);
+            var result = _integerTokenValueValidator.Validate(token, tokenCollection);
+            return result;
         }
     }
 }

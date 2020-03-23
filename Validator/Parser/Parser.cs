@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using JsonSchemaValidator.Validator.Parser.TokenValidators;
+using JsonSchemaValidator.Validator.Tokens;
+using JsonSchemaValidator.Validator.Tokens.TokenSpecifications;
 
 namespace JsonSchemaValidator.Validator.Parser
 {
     internal class Parser : IParser
     {
-        private readonly IList<ParserError> _parserErrors = new List<ParserError>();
+        private readonly List<ParserError> _parserErrors = new List<ParserError>();
         private readonly ITokenCollection _tokenCollection;
         private readonly ITokenValidatorFactory _tokenHandlerFactory;
 
@@ -21,21 +24,35 @@ namespace JsonSchemaValidator.Validator.Parser
             var token = _tokenCollection.TakeToken();
             while (token != null)
             {
-                try
+                var colonToken = _tokenCollection.TakeToken();
+                if (colonToken.Name != TokenName.Colon)
                 {
-                    var tokenValidator = _tokenHandlerFactory.GetTokenValidator(token);
-                    var validationResult = tokenValidator.Validate(token, _tokenCollection);
-                    if (!validationResult.IsSuccess)
-                        _parserErrors.Add(validationResult.ParserError);
-                    token = _tokenCollection.TakeToken();
+                    AddError(token, "Identifier must end with colon.");
+                    break;
                 }
-                catch (Exception e)
+                var tokenValidator = _tokenHandlerFactory.GetTokenValidator(token);
+                var validationResult = tokenValidator.Validate(token, _tokenCollection);
+                _parserErrors.AddRange(validationResult.Where(r => !r.IsSuccess).Select(r => r.ParserError));
+
+                var commaToken = _tokenCollection.TakeToken();
+                if (commaToken.Name == TokenName.EndOfFile)
                 {
-                    // TODO: remove that try/catch clause after implementing all validators
-                    throw e;
+                    break;
                 }
+                if (commaToken.Name != TokenName.Comma)
+                {
+                    AddError(commaToken, "In order to process next identifier the previous one needs to end with comma.");
+                    break;
+                }
+                token = _tokenCollection.TakeToken();
             }
             return new ParserResult(_parserErrors);
+        }
+
+        private void AddError(Token token, string message)
+        {
+            var error = new ParserError(message, token.Line, token.Column);
+            _parserErrors.Add(error);
         }
 
         private class ErrorEventArgs : EventArgs

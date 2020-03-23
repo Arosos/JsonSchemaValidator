@@ -23,29 +23,29 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Type
 
         public TokenName TokenName => new TokenName(new TypeKeyword().Keyword);
 
-        public ValidationResult Validate(Token token, ITokenCollection tokenCollection)
+        public IReadOnlyCollection<ValidationResult> Validate(Token token, ITokenCollection tokenCollection)
         {
             var value = tokenCollection.Peek();
             if (value is null)
             {
                 var error = new ParserError($"{token.Name} value is supposed to be string or array.", token.Line, token.Column);
-                return ValidationResult.Error(error);
+                return new[] { ValidationResult.Error(error) };
             }
             if (value.Name == TokenName.StartArray)
             {
                 var result = _stringArrayWithUniqueValuesValidator.Validate(token, tokenCollection, _arrayFilterers);
-                return result;
+                return new[] { result };
             }
             else if (value.Name == TokenName.String)
             {
+                value = tokenCollection.TakeToken();
                 if (!_typeElementSpecification.IsSatisfied(value))
                 {
                     var error = new ParserError($"{token.Name} had invalid value.", token.Line, token.Column);
-                    return ValidationResult.Error(error);
-
+                    return new[] { ValidationResult.Error(error) };
                 }
             }
-            return ValidationResult.Success();
+            return new[] { ValidationResult.Success() };
         }
     }
 }

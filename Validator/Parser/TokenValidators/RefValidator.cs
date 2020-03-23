@@ -6,16 +6,16 @@ using JsonSchemaValidator.Validator.Tokens.TokenSpecifications;
 
 namespace JsonSchemaValidator.Validator.Parser.TokenValidators
 {
-    internal class TitleValidator : ITokenValidator
+    internal class RefValidator : ITokenValidator
     {
         private readonly IStringTokenValueValidator _stringTokenValueValidator;
 
-        public TitleValidator(IStringTokenValueValidator stringTokenValueValidator)
+        public RefValidator(IStringTokenValueValidator stringTokenValueValidator)
         {
             _stringTokenValueValidator = stringTokenValueValidator;
         }
 
-        public TokenName TokenName => new TokenName(new TitleKeyword().Keyword);
+        public TokenName TokenName => new TokenName(new RefKeyword().Keyword);
 
         public IReadOnlyCollection<ValidationResult> Validate(Token token, ITokenCollection tokenCollection)
         {

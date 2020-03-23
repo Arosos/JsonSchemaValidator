@@ -20,7 +20,7 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array
         {
             var startArrayToken = tokenCollection.TakeToken();
             if (startArrayToken.Name != TokenName.StartArray)
-                return Error(token, "Required value is supposed to be an array.");
+                return Error(token, $"{token.Name} value is supposed to be an array.");
 
             IReadOnlyCollection<Token> elementTokens;
             try

@@ -8,22 +8,22 @@ using JsonSchemaValidator.Validator.Tokens.TokenSpecifications;
 
 namespace JsonSchemaValidator.Validator.Parser.TokenValidators
 {
-    internal class RequiredValidator : ITokenValidator
+    internal class EnumValidator : ITokenValidator
     {
-        private readonly IArrayValidator _stringArrayWithUniqueValuesValidator;
+        private readonly IArrayValidator _arrayValidator;
         private readonly IReadOnlyCollection<IArrayFilterer> _arrayFilterers;
 
-        public RequiredValidator(IArrayValidator stringArrayWithUniqueValuesValidator, IEnumerable<IArrayFilterer> arrayFilterers)
+        public EnumValidator(IArrayValidator arrayValidator, IEnumerable<IArrayFilterer> arrayFilterers)
         {
-            _stringArrayWithUniqueValuesValidator = stringArrayWithUniqueValuesValidator;
+            _arrayValidator = arrayValidator;
             _arrayFilterers = arrayFilterers.ToList();
         }
 
-        public TokenName TokenName => new TokenName(new RequiredKeyword().Keyword);
+        public TokenName TokenName => new TokenName(new EnumKeyword().Keyword);
 
         public IReadOnlyCollection<ValidationResult> Validate(Token token, ITokenCollection tokenCollection)
         {
-            return new[] { _stringArrayWithUniqueValuesValidator.Validate(token, tokenCollection, _arrayFilterers) };
+            return new[] { _arrayValidator.Validate(token, tokenCollection, _arrayFilterers) };
         }
     }
 }

@@ -19,7 +19,7 @@
       "type": "string",
       "enum": ["female", "male"]
     },
-    "home_address" {
+    "home_address": {
       "$ref": "#/definitions/address"
     },
     "registered_address" {
