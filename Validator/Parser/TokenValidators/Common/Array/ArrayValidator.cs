@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array.Exceptions;
 using JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array.Filterers;
@@ -34,9 +35,16 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Array
 
             foreach (var filterer in filterers)
             {
-                var result = filterer.GetInvalidTokens(elementTokens);
-                if (result.Any())
-                    return Error(token, filterer.Message);
+                try
+                {
+                    var result = filterer.GetInvalidTokens(elementTokens);
+                    if (result.Any())
+                        return Error(token, filterer.Message);
+                }
+                catch (Exception e)
+                {
+                    return Error(token, e.Message);
+                }
             }
 
             return ValidationResult.Success();

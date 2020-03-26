@@ -6,15 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="exampleFile.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="exampleFile.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="System.Collections.Immutable" Version="1.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="exampleFile.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

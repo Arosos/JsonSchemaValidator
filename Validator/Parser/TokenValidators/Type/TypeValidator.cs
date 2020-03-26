@@ -45,6 +45,11 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Type
                     return new[] { ValidationResult.Error(error) };
                 }
             }
+            else
+            {
+                var error = new ParserError("Inalid type value.", token.Line, token.Column);
+                return new[] { ValidationResult.Error(error) };
+            }
             return new[] { ValidationResult.Success() };
         }
     }

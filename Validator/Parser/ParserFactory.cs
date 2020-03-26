@@ -66,7 +66,7 @@ namespace JsonSchemaValidator.Validator.Parser
         {
             var arrayFilterers = new List<IArrayFilterer>
             {
-                new SingleArrayFilterer(),
+                new AtLeastOnetArrayFilterer(),
                 new UniqueArrayFilterer(),
             };
             return new EnumValidator(GetArrayValidator(), arrayFilterers);

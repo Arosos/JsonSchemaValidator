@@ -31,6 +31,11 @@ namespace JsonSchemaValidator.Validator.Parser
                     break;
                 }
                 var tokenValidator = _tokenHandlerFactory.GetTokenValidator(token);
+                if (tokenValidator is null)
+                {
+                    AddError(token, "It is unkown identifier.");
+                    break;
+                }
                 var validationResult = tokenValidator.Validate(token, _tokenCollection);
                 _parserErrors.AddRange(validationResult.Where(r => !r.IsSuccess).Select(r => r.ParserError));
 

@@ -28,7 +28,10 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Object
         public IReadOnlyCollection<ValidationResult> Validate(Token token, ITokenCollection tokenCollection)
         {
             var errors = new List<ValidationResult>();
-            _ = tokenCollection.TakeToken();
+            var startObjectToken = tokenCollection.TakeToken();
+            if (startObjectToken?.Name != TokenName.StartObject)
+                return new[] { Error("Object is supposed to start with '{'.", startObjectToken) };
+
             var fieldToken = tokenCollection.TakeToken();
             while (fieldToken.Name != TokenName.EndObject)
             {
@@ -50,7 +53,13 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Object
                 }
 
                 var valueToken = tokenCollection.Peek();
-                if (valueToken.Name == TokenName.StartArray)
+                if (_keywords.Contains(fieldToken.Name) && _tokenHandlerFactory.GetTokenValidator(fieldToken) != null)
+                {
+                    var validator = _tokenHandlerFactory.GetTokenValidator(fieldToken);
+                    var result = validator.Validate(valueToken, tokenCollection);
+                    errors.AddRange(result);
+                }
+                else if (valueToken.Name == TokenName.StartArray)
                 {
                     var result = _arrayValidator.Validate(valueToken, tokenCollection, Enumerable.Empty<IArrayFilterer>());
                     errors.Add(result);
@@ -62,9 +71,7 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Common.Object
                 }
                 else
                 {
-                    var validator = _keywords.Contains(fieldToken.Name)
-                        ? _tokenHandlerFactory.GetTokenValidator(fieldToken)
-                        : _tokenHandlerFactory.GetTokenValidator(valueToken);
+                    var validator = _tokenHandlerFactory.GetTokenValidator(valueToken);
                     var result = validator.Validate(valueToken, tokenCollection);
                     errors.AddRange(result);
                 }

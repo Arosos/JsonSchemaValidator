@@ -4,6 +4,6 @@
     {
         public TokenName Name => TokenName.Number;
 
-        public string Regex => @"\d+(\.\d*)?";
+        public string Regex => @"-{0,1}\d+(\.\d*)?";
     }
 }

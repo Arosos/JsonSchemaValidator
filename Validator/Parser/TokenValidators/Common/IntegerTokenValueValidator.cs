@@ -13,7 +13,7 @@ namespace JsonSchemaValidator.Validator.Parser.TokenValidators.Common
             var value = tokenCollection.TakeToken();
             if (value is null || value.Name != TokenName.Number)
             {
-                var error = new ParserError($"{token.Name} should be numer", token.Line, token.Column);
+                var error = new ParserError("Should be number.", token.Line, token.Column);
                 return new[] { ValidationResult.Error(error) };
             }
 

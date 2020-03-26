@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using JsonSchemaValidator.Validator.Parser;
 using JsonSchemaValidator.Validator.Tokens;
 
@@ -26,6 +26,11 @@ namespace JsonSchemaValidator
             {
                 Console.WriteLine("Success!");
             }
+            Console.WriteLine("Press any key...");
+            if (!Debugger.IsAttached)
+            {
+                Console.ReadKey();
+            }
         }
 
         private static string GetInput(string[] args)
@@ -41,15 +46,13 @@ namespace JsonSchemaValidator
             }
             else
             {
-                return GetDefaultEmbeddedResource();
+                return GetDefaultFile();
             }
         }
 
-        private static string GetDefaultEmbeddedResource()
+        private static string GetDefaultFile()
         {
-            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"{nameof(JsonSchemaValidator)}.exampleFile.txt");
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+            return File.ReadAllText("exampleFile.txt");
         }
 
         private static string GetInputPath(string[] args, int index)
